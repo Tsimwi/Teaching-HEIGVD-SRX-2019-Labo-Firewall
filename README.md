@@ -123,15 +123,26 @@ _Lors de la définition d'une zone, spécifier l'adresse du sous-réseau IP avec
 
 **LIVRABLE : Remplir le tableau**
 
-| Adresse IP source | Adresse IP destination | Type | Port src | Port dst | Action |
-| :---:             | :---:                  | :---:| :------: | :------: | :----: |
-|                   |                        |      |          |          |        |
-|                   |                        |      |          |          |        |
-|                   |                        |      |          |          |        |
-|                   |                        |      |          |          |        |
-|                   |                        |      |          |          |        |
-|                   |                        |      |          |          |        |
-|                   |                        |      |          |          |        |
+| Adresse IP source | Adresse IP destination |        Type         | Port src | Port dst | Action |
+| :---------------: | :--------------------: | :-----------------: | :------: | :------: | :----: |
+|         *         |    192.168.100.0/24    |         UDP         |    53    |    *     | ACCEPT |
+| 192.168.100.0/24  |           *            |         UDP         |    *     |    53    | ACCEPT |
+|         *         |    192.168.100.0/24    |         TCP         |    53    |    *     | ACCEPT |
+| 192.168.100.0/24  |           *            |         TCP         |    *     |    53    | ACCEPT |
+| 192.168.100.0/24  |           *            | ICMP (echo request) |    *     |    25    | ACCEPT |
+|         *         |    192.168.100.0/24    |  ICMP (echo reply)  |    25    |    *     | ACCEPT |
+| 192.168.200.0/24  |    192.168.100.0/24    | ICMP (echo request) |    *     |    25    | ACCEPT |
+| 192.168.100.0/24  |    192.168.200.0/24    |  ICMP (echo reply)  |    25    |    *     | ACCEPT |
+| 192.168.100.0/24  |           *            |     TCP (HTTP)      |    *     |    80    | ACCEPT |
+|         *         |    192.168.100.0/24    |     TCP (HTTP)      |    80    |    *     | ACCEPT |
+| 192.168.100.0/24  |           *            |     TCP (HTTP)      |    *     |   8080   | ACCEPT |
+|         *         |    192.168.100.0/24    |     TCP (HTTP)      |   8080   |    *     | ACCEPT |
+| 192.168.100.0/24  |           *            |     TCP (HTTP)      |    *     |   443    | ACCEPT |
+|         *         |    192.168.100.0/24    |     TCP (HTTP)      |   443    |    *     | ACCEPT |
+|         *         |     192.168.200.3      |     TCP (HTTP)      |    *     |    80    | ACCEPT |
+|   192.168.200.3   |           *            |     TCP (HTTP)      |    80    |    *     | ACCEPT |
+|   192.168.100.3   |     192.168.200.3      |      TCP (SSH)      |    22    |    22    | ACCEPT |
+|   192.168.100.3   |     192.168.100.2      |      TCP (SSH)      |    22    |    22    | ACCEPT |
 
 ---
 
@@ -226,7 +237,7 @@ ping 192.168.200.3
 ```
 ---
 
-**LIVRABLE : capture d'écran de votre tentative de ping.**  
+![1_ping_impossible_entre_lan_et_dmz](C:\Users\Caroline\Downloads\Telegram Desktop\1_ping_impossible_entre_lan_et_dmz.png)
 
 ---
 
@@ -258,7 +269,7 @@ ping 192.168.100.3
 
 ---
 
-**LIVRABLE : capture d'écran de votre nouvelle tentative de ping.**
+![2_ping_ok_entre_server_et_lan](C:\Users\Caroline\Downloads\Telegram Desktop\2_ping_ok_entre_server_et_lan.png)
 
 ---
 
@@ -272,7 +283,7 @@ ping 8.8.8.8
 
 ---
 
-**LIVRABLE : capture d'écran de votre ping vers l'Internet.**
+![3_ping_nok_vers_wan](C:\Users\Caroline\Downloads\Telegram Desktop\3_ping_nok_vers_wan.png)
 
 ---
 
@@ -352,7 +363,10 @@ Commandes iptables :
 ---
 
 ```bash
-LIVRABLE : Commandes iptables
+iptables -A FORWARD -p icmp --icmp-type 8 -s 192.168.100.0/24 -j ACCEPT
+iptables -A FORWARD -p icmp --icmp-type 0 -d 192.168.100.0/24 -j ACCEPT
+iptables -A FORWARD -p icmp --icmp-type 8 -s 192.168.200.0/24 -d 192.168.100.0/24 -j ACCEPT
+iptables -A FORWARD -p icmp --icmp-type 0 -d 192.168.200.0/24 -s 192.168.100.0/24 -j ACCEPT
 ```
 ---
 
@@ -365,11 +379,11 @@ LIVRABLE : Commandes iptables
 
 ```bash
 ping 8.8.8.8
-``` 	            
+```
 Faire une capture du ping.
 
 ---
-**LIVRABLE : capture d'écran de votre ping vers l'Internet.**
+![capture_du_ping_lan_wan_OK](C:\Users\Caroline\S4\SRX\Teaching-HEIGVD-SRX-2019-Labo-Firewall\capture_du_ping_lan_wan_OK.png)
 
 ---
 
@@ -379,20 +393,20 @@ Faire une capture du ping.
 </ol>
 
 
-| De Client\_in\_LAN à | OK/KO | Commentaires et explications |
-| :---                 | :---: | :---                         |
-| Interface DMZ du FW  |       |                              |
-| Interface LAN du FW  |       |                              |
-| Client LAN           |       |                              |
-| Serveur WAN          |       |                              |
+| De Client\_in\_LAN à | OK/KO | Commentaires et explications                                 |
+| :------------------- | :---: | :----------------------------------------------------------- |
+| Interface DMZ du FW  |  KO   | ping 192.168.200.2 ne fonctionne pas car <br /> le firewall n'autorise aucun ping en INPUT |
+| Interface LAN du FW  |  KO   | ping 192.168.100.2 ne fonctionne pas car <br /> le firewall n'autorise aucun ping en INPUT |
+| Serveur DMZ          |  OK   | ping 192.168.200.3 fonctionne car le LAN<br />est autorisé à ping n'importe quel réseau<br /> à travers le firewall |
+| Serveur WAN          |  OK   | ping 8.8.8.8 fonctionne car le LAN est<br />autorisé à ping n'importe quel réseau<br /> à travers le firewall |
 
 
-| De Server\_in\_DMZ à | OK/KO | Commentaires et explications |
-| :---                 | :---: | :---                         |
-| Interface DMZ du FW  |       |                              |
-| Interface LAN du FW  |       |                              |
-| Serveur DMZ          |       |                              |
-| Serveur WAN          |       |                              |
+| De Server\_in\_DMZ à | OK/KO | Commentaires et explications                                 |
+| :------------------- | :---: | :----------------------------------------------------------- |
+| Interface DMZ du FW  |  KO   | ping 192.168.200.2 ne fonctionne pas car <br /> le firewall n'autorise aucun ping en INPUT |
+| Interface LAN du FW  |  KO   | ping 192.168.100.2 ne fonctionne pas car <br /> le firewall n'autorise aucun ping en INPUT |
+| Client LAN           |  OK   | ping 192.168.100.3 fonctionne <br />car le ping de la DMZ au LAN est autorisé |
+| Serveur WAN          |  KO   | ping 8.8.8.8 ne fonctionne pas car la DMZ<br />n'est pas autorisée à ping autre chose que le LAN |
 
 
 ## Règles pour le protocole DNS
@@ -410,7 +424,7 @@ ping www.google.com
 
 ---
 
-**LIVRABLE : capture d'écran de votre ping.**
+![capture_du_ping_dns_lan_to_google_nok](C:\Users\Caroline\S4\SRX\Teaching-HEIGVD-SRX-2019-Labo-Firewall\capture_du_ping_dns_lan_to_google_nok.png)
 
 ---
 
@@ -421,7 +435,10 @@ Commandes iptables :
 ---
 
 ```bash
-LIVRABLE : Commandes iptables
+iptables -A FORWARD -p udp --sport 53 -d 192.168.100.0/24 -j ACCEPT
+iptables -A FORWARD -p udp --dport 53 -s 192.168.100.0/24 -j ACCEPT
+iptables -A FORWARD -p tcp -m conntrack --ctstate RELATED,ESTABLISHED --dport 53 -s 192.168.100.0/24 -j ACCEPT
+iptables -A FORWARD -p tcp --sport 53 -d 192.168.100.0/24 -j ACCEPT
 ```
 
 ---
@@ -430,10 +447,9 @@ LIVRABLE : Commandes iptables
   <li>Tester en réitérant la commande ping sur le serveur de test (Google ou autre) : 
   </li>                                  
 </ol>
-
 ---
 
-**LIVRABLE : capture d'écran de votre ping.**
+![capture_du_ping_dns_lan_to_google_ok](C:\Users\Caroline\S4\SRX\Teaching-HEIGVD-SRX-2019-Labo-Firewall\capture_du_ping_dns_lan_to_google_ok.png)
 
 ---
 
@@ -441,11 +457,10 @@ LIVRABLE : Commandes iptables
   <li>Remarques (sur le message du premier ping)? 
   </li>                                  
 </ol>
-
 ---
 **Réponse**
 
-**LIVRABLE : Votre réponse ici...**
+**On remarque lors du premier ping sur le nom de domaine www.google.com que nous n'obtenons pas de réponse, bien que l'adresse IP d'un serveur de Google soit noté dans le message de ping.**
 
 ---
 
@@ -465,7 +480,12 @@ Commandes iptables :
 ---
 
 ```bash
-LIVRABLE : Commandes iptables
+iptables -A FORWARD -p tcp -m conntrack --ctstate RELATED,ESTABLISHED -i eth0 --sport 80 -d 192.168.100.0/24 -j ACCEPT
+iptables -A FORWARD -p tcp --dport 80 -s 192.168.100.0/24 -j ACCEPT
+iptables -A FORWARD -p tcp -m conntrack --ctstate RELATED,ESTABLISHED -i eth0 --sport 8080 -d 192.168.100.0/24 -j ACCEPT
+iptables -A FORWARD -p tcp --dport 8080 -s 192.168.100.0/24 -j ACCEPT
+iptables -A FORWARD -p tcp -m conntrack --ctstate RELATED,ESTABLISHED -i eth0 --sport 443 -d 192.168.100.0/24 -j ACCEPT
+iptables -A FORWARD -p tcp --dport 443 -s 192.168.100.0/24 -j ACCEPT
 ```
 
 ---
@@ -477,7 +497,8 @@ Commandes iptables :
 ---
 
 ```bash
-LIVRABLE : Commandes iptables
+iptables -A FORWARD -p tcp -m conntrack --ctstate RELATED,ESTABLISHED --sport 80 -s 192.168.200.3 -j ACCEPT
+iptables -A FORWARD -p tcp --dport 80 -d 192.168.200.3 -j ACCEPT
 ```
 ---
 
@@ -485,10 +506,9 @@ LIVRABLE : Commandes iptables
   <li>Tester l’accès à ce serveur depuis le LAN utilisant utilisant wget (ne pas oublier les captures d'écran). 
   </li>                                  
 </ol>
-
 ---
 
-**LIVRABLE : capture d'écran.**
+![wget_lan_to_heig_ok](C:\Users\Caroline\S4\SRX\Teaching-HEIGVD-SRX-2019-Labo-Firewall\wget_lan_to_heig_ok.png)
 
 ---
 
@@ -505,7 +525,10 @@ Commandes iptables :
 ---
 
 ```bash
-LIVRABLE : Commandes iptables
+iptables -A FORWARD -p tcp --dport 22 -s 192.168.100.3 -d 192.168.200.3 -j ACCEPT
+iptables -A FORWARD -p tcp --sport 22 -d 192.168.100.3 -s 192.168.200.3 -j ACCEPT
+iptables -A INPUT -p tcp --dport 22 -s 192.168.100.3 -d 192.168.100.2 -j ACCEPT
+iptables -A OUTPUT -p tcp --sport 22 -d 192.168.100.3 -s 192.168.100.2 -j ACCEPT
 ```
 
 ---
@@ -518,7 +541,7 @@ ssh root@192.168.200.3 (password : celui que vous avez configuré)
 
 ---
 
-**LIVRABLE : capture d'écran de votre connexion ssh.**
+![ssh_lan_to_dmz_ok](C:\Users\Caroline\S4\SRX\Teaching-HEIGVD-SRX-2019-Labo-Firewall\ssh_lan_to_dmz_ok.png)
 
 ---
 
@@ -526,11 +549,10 @@ ssh root@192.168.200.3 (password : celui que vous avez configuré)
   <li>Expliquer l'utilité de **ssh** sur un serveur. 
   </li>                                  
 </ol>
-
 ---
 **Réponse**
 
-**LIVRABLE : Votre réponse ici...**
+**La commande ssh permet, comme son nom l'indique, d'ouvrir un secured shell sur une machine distante. L'avantage est de pouvoir manager à distance un client ou un serveur de manière sécurisée sans devoir être physiquement vers la machine. Cela permet également à plusieurs personnes de travailler sur la même machine simultanément via de multiples shells ouverts et de logger les accès effectués.**
 
 ---
 
@@ -538,12 +560,10 @@ ssh root@192.168.200.3 (password : celui que vous avez configuré)
   <li>En général, à quoi faut-il particulièrement faire attention lors de l'écriture des règles du pare-feu pour ce type de connexion ? 
   </li>                                  
 </ol>
-
-
 ---
 **Réponse**
 
-**LIVRABLE : Votre réponse ici...**
+**Il faut bien définir quelles adresses IP ont le droit de lancer un ssh sur quelle/s machine/s, afin que les règles soient plus précises possible.**
 
 ---
 
@@ -555,9 +575,8 @@ A présent, vous devriez avoir le matériel nécessaire afin de reproduire la ta
   <li>Insérer la capture d’écran avec toutes vos règles iptables
   </li>                                  
 </ol>
-
 ---
 
-**LIVRABLE : capture d'écran avec toutes vos règles.**
+![regles_finales](C:\Users\Caroline\S4\SRX\Teaching-HEIGVD-SRX-2019-Labo-Firewall\regles_finales.png)
 
 ---
