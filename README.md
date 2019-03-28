@@ -237,8 +237,7 @@ ping 192.168.200.3
 ```
 ---
 
-![1_ping_impossible_entre_lan_et_dmz](C:\Users\Caroline\Downloads\Telegram Desktop\1_ping_impossible_entre_lan_et_dmz.png)
-
+![1_ping_impossible_entre_lan_et_dmz](https://user-images.githubusercontent.com/33039189/55188627-250f0480-519c-11e9-9e4f-2223ca5a0305.png)
 ---
 
 En effet, la communication entre les clients dans le LAN et les serveurs dans la DMZ doit passer à travers le Firewall. Il faut donc définir le Firewall comme passerelle par défaut pour le client dans le LAN et le serveur dans la DMZ.
@@ -269,7 +268,7 @@ ping 192.168.100.3
 
 ---
 
-![2_ping_ok_entre_server_et_lan](C:\Users\Caroline\Downloads\Telegram Desktop\2_ping_ok_entre_server_et_lan.png)
+![2_ping_ok_entre_server_et_lan](https://user-images.githubusercontent.com/33039189/55188669-38ba6b00-519c-11e9-8cf0-0637a0f69e90.png)
 
 ---
 
@@ -283,7 +282,7 @@ ping 8.8.8.8
 
 ---
 
-![3_ping_nok_vers_wan](C:\Users\Caroline\Downloads\Telegram Desktop\3_ping_nok_vers_wan.png)
+![3_ping_nok_vers_wan](https://user-images.githubusercontent.com/33039189/55188732-54257600-519c-11e9-9b70-3d0bb113f0a8.png)
 
 ---
 
@@ -383,7 +382,7 @@ ping 8.8.8.8
 Faire une capture du ping.
 
 ---
-![capture_du_ping_lan_wan_OK](C:\Users\Caroline\S4\SRX\Teaching-HEIGVD-SRX-2019-Labo-Firewall\capture_du_ping_lan_wan_OK.png)
+![capture_du_ping_lan_wan_OK](https://user-images.githubusercontent.com/33039189/55188542-f1cc7580-519b-11e9-933a-42f3bab86f04.png)
 
 ---
 
@@ -424,7 +423,7 @@ ping www.google.com
 
 ---
 
-![capture_du_ping_dns_lan_to_google_nok](C:\Users\Caroline\S4\SRX\Teaching-HEIGVD-SRX-2019-Labo-Firewall\capture_du_ping_dns_lan_to_google_nok.png)
+![capture_du_ping_dns_lan_to_google_nok](https://user-images.githubusercontent.com/33039189/55188526-e8dba400-519b-11e9-8bb9-d8e95b5ffd84.png)
 
 ---
 
@@ -449,7 +448,7 @@ iptables -A FORWARD -p tcp --sport 53 -d 192.168.100.0/24 -j ACCEPT
 </ol>
 ---
 
-![capture_du_ping_dns_lan_to_google_ok](C:\Users\Caroline\S4\SRX\Teaching-HEIGVD-SRX-2019-Labo-Firewall\capture_du_ping_dns_lan_to_google_ok.png)
+![capture_du_ping_dns_lan_to_google_ok](https://user-images.githubusercontent.com/33039189/55188537-eed18500-519b-11e9-87fb-de1fbb375338.png)
 
 ---
 
@@ -508,7 +507,7 @@ iptables -A FORWARD -p tcp --dport 80 -d 192.168.200.3 -j ACCEPT
 </ol>
 ---
 
-![wget_lan_to_heig_ok](C:\Users\Caroline\S4\SRX\Teaching-HEIGVD-SRX-2019-Labo-Firewall\wget_lan_to_heig_ok.png)
+![wget_lan_to_heig_ok](https://user-images.githubusercontent.com/33039189/55188554-f8f38380-519b-11e9-8e68-2c4358b4153c.png)
 
 ---
 
@@ -541,7 +540,7 @@ ssh root@192.168.200.3 (password : celui que vous avez configuré)
 
 ---
 
-![ssh_lan_to_dmz_ok](C:\Users\Caroline\S4\SRX\Teaching-HEIGVD-SRX-2019-Labo-Firewall\ssh_lan_to_dmz_ok.png)
+![ssh_lan_to_dmz_ok](https://user-images.githubusercontent.com/33039189/55188548-f6912980-519b-11e9-9bfe-2f04d44b3bfb.png)
 
 ---
 
@@ -577,6 +576,6 @@ A présent, vous devriez avoir le matériel nécessaire afin de reproduire la ta
 </ol>
 ---
 
-![regles_finales](C:\Users\Caroline\S4\SRX\Teaching-HEIGVD-SRX-2019-Labo-Firewall\regles_finales.png)
+![regles_finales](https://user-images.githubusercontent.com/33039189/55188546-f4c76600-519b-11e9-86a3-fc1c9e867078.png)
 
 ---
