@@ -362,10 +362,10 @@ Commandes iptables :
 ---
 
 ```bash
-iptables -A FORWARD -p icmp --icmp-type 8 -s 192.168.100.0/24 -j ACCEPT
-iptables -A FORWARD -p icmp --icmp-type 0 -d 192.168.100.0/24 -j ACCEPT
-iptables -A FORWARD -p icmp --icmp-type 8 -s 192.168.200.0/24 -d 192.168.100.0/24 -j ACCEPT
-iptables -A FORWARD -p icmp --icmp-type 0 -d 192.168.200.0/24 -s 192.168.100.0/24 -j ACCEPT
+iptables -A FORWARD -p icmp --icmp-type 8 -m conntrack --ctstate NEW,ESTABLISHED -s 192.168.100.0/24 -j ACCEPT
+iptables -A FORWARD -p icmp --icmp-type 0 -m conntrack --ctstate RELATED,ESTABLISHED -d 192.168.100.0/24 -j ACCEPT
+iptables -A FORWARD -p icmp --icmp-type 8 -m conntrack --ctstate NEW,ESTABLISHED -s 192.168.200.0/24 -d 192.168.100.0/24 -j ACCEPT
+iptables -A FORWARD -p icmp --icmp-type 0 -m conntrack --ctstate RELATED,ESTABLISHED -d 192.168.200.0/24 -s 192.168.100.0/24 -j ACCEPT
 ```
 ---
 
@@ -423,7 +423,7 @@ ping www.google.com
 
 ---
 
-![capture_du_ping_dns_lan_to_google_nok](https://user-images.githubusercontent.com/33039189/55188526-e8dba400-519b-11e9-8bb9-d8e95b5ffd84.png)
+![capture_du_ping_dns_lan_to_google_nok](https://user-images.githubusercontent.com/33039189/55276066-213fc700-52ef-11e9-9fbe-21c5e8f8e1a3.png)
 
 ---
 
@@ -437,7 +437,7 @@ Commandes iptables :
 iptables -A FORWARD -p udp --sport 53 -d 192.168.100.0/24 -j ACCEPT
 iptables -A FORWARD -p udp --dport 53 -s 192.168.100.0/24 -j ACCEPT
 iptables -A FORWARD -p tcp -m conntrack --ctstate RELATED,ESTABLISHED --dport 53 -s 192.168.100.0/24 -j ACCEPT
-iptables -A FORWARD -p tcp --sport 53 -d 192.168.100.0/24 -j ACCEPT
+iptables -A FORWARD -p tcp -m conntrack --ctstate NEW,ESTABLISHED --sport 53 -d 192.168.100.0/24 -j ACCEPT
 ```
 
 ---
@@ -459,7 +459,7 @@ iptables -A FORWARD -p tcp --sport 53 -d 192.168.100.0/24 -j ACCEPT
 ---
 **Réponse**
 
-**On remarque lors du premier ping sur le nom de domaine www.google.com que nous n'obtenons pas de réponse, bien que l'adresse IP d'un serveur de Google soit noté dans le message de ping.**
+**On remarque que lorsqu'on souhaitait résoudre le nom www.google.com, on obtienait l'erreur _Temporary failure in name resolution_. Cela était dû au fait que notre client LAN faisait une demande de résolution du nom de domaine depuis son port 53, mais que cela n'aboutissait jamais vu que le Firewall "drop" tout par défaut. C'est seulement après avoir autorisé le traffic udp depuis et vers le port 53 du client LAN que le problème a été résolu.**
 
 ---
 
@@ -480,11 +480,11 @@ Commandes iptables :
 
 ```bash
 iptables -A FORWARD -p tcp -m conntrack --ctstate RELATED,ESTABLISHED -i eth0 --sport 80 -d 192.168.100.0/24 -j ACCEPT
-iptables -A FORWARD -p tcp --dport 80 -s 192.168.100.0/24 -j ACCEPT
+iptables -A FORWARD -p tcp -m conntrack --ctstate NEW,ESTABLISHED --dport 80 -s 192.168.100.0/24 -j ACCEPT
 iptables -A FORWARD -p tcp -m conntrack --ctstate RELATED,ESTABLISHED -i eth0 --sport 8080 -d 192.168.100.0/24 -j ACCEPT
-iptables -A FORWARD -p tcp --dport 8080 -s 192.168.100.0/24 -j ACCEPT
+iptables -A FORWARD -p tcp -m conntrack --ctstate NEW,ESTABLISHED --dport 8080 -s 192.168.100.0/24 -j ACCEPT
 iptables -A FORWARD -p tcp -m conntrack --ctstate RELATED,ESTABLISHED -i eth0 --sport 443 -d 192.168.100.0/24 -j ACCEPT
-iptables -A FORWARD -p tcp --dport 443 -s 192.168.100.0/24 -j ACCEPT
+iptables -A FORWARD -p tcp -m conntrack --ctstate NEW,ESTABLISHED --dport 443 -s 192.168.100.0/24 -j ACCEPT
 ```
 
 ---
@@ -497,7 +497,7 @@ Commandes iptables :
 
 ```bash
 iptables -A FORWARD -p tcp -m conntrack --ctstate RELATED,ESTABLISHED --sport 80 -s 192.168.200.3 -j ACCEPT
-iptables -A FORWARD -p tcp --dport 80 -d 192.168.200.3 -j ACCEPT
+iptables -A FORWARD -p tcp -m conntrack --ctstate NEW,ESTABLISHED --dport 80 -d 192.168.200.3 -j ACCEPT
 ```
 ---
 
@@ -524,10 +524,10 @@ Commandes iptables :
 ---
 
 ```bash
-iptables -A FORWARD -p tcp --dport 22 -s 192.168.100.3 -d 192.168.200.3 -j ACCEPT
-iptables -A FORWARD -p tcp --sport 22 -d 192.168.100.3 -s 192.168.200.3 -j ACCEPT
-iptables -A INPUT -p tcp --dport 22 -s 192.168.100.3 -d 192.168.100.2 -j ACCEPT
-iptables -A OUTPUT -p tcp --sport 22 -d 192.168.100.3 -s 192.168.100.2 -j ACCEPT
+iptables -A FORWARD -p tcp -m conntrack --ctstate NEW,ESTABLISHED --dport 22 -s 192.168.100.3 -d 192.168.200.3 -j ACCEPT
+iptables -A FORWARD -p tcp -m conntrack --ctstate ESTABLISHED --sport 22 -d 192.168.100.3 -s 192.168.200.3 -j ACCEPT
+iptables -A INPUT -p tcp -m conntrack --ctstate NEW,ESTABLISHED --dport 22 -s 192.168.100.3 -d 192.168.100.2 -j ACCEPT
+iptables -A OUTPUT -p tcp -m conntrack --ctstate ESTABLISHED --sport 22 -d 192.168.100.3 -s 192.168.100.2 -j ACCEPT
 ```
 
 ---
@@ -576,6 +576,6 @@ A présent, vous devriez avoir le matériel nécessaire afin de reproduire la ta
 </ol>
 ---
 
-![regles_finales](https://user-images.githubusercontent.com/33039189/55188546-f4c76600-519b-11e9-86a3-fc1c9e867078.png)
+![regles_finales](https://user-images.githubusercontent.com/33039189/55276050-b55d5e80-52ee-11e9-8ec0-b8c4590e91c7.png)
 
 ---
