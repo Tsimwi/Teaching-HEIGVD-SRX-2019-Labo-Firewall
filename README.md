@@ -509,6 +509,7 @@ iptables -A FORWARD -p tcp -m conntrack --ctstate NEW,ESTABLISHED --dport 80 -d 
   <li>Tester l’accès à ce serveur depuis le LAN utilisant utilisant wget (ne pas oublier les captures d'écran). 
   </li>                                  
 </ol>
+
 ---
 
 Test : LAN -> WAN
@@ -558,7 +559,9 @@ ssh root@192.168.200.3 (password : celui que vous avez configuré)
   <li>Expliquer l'utilité de **ssh** sur un serveur. 
   </li>                                  
 </ol>
+
 ---
+
 **Réponse**
 
 **La commande ssh permet, comme son nom l'indique, d'ouvrir un secured shell sur une machine distante. L'avantage est de pouvoir manager à distance un client ou un serveur de manière sécurisée sans devoir être physiquement vers la machine. Cela permet également à plusieurs personnes de travailler sur la même machine simultanément via de multiples shells ouverts et de logger les accès effectués.**
@@ -569,7 +572,9 @@ ssh root@192.168.200.3 (password : celui que vous avez configuré)
   <li>En général, à quoi faut-il particulièrement faire attention lors de l'écriture des règles du pare-feu pour ce type de connexion ? 
   </li>                                  
 </ol>
+
 ---
+
 **Réponse**
 
 **Il faut bien définir quelles adresses IP ont le droit de lancer un ssh sur quelle/s machine/s, afin que les règles soient plus précises possible.**
