@@ -510,8 +510,13 @@ iptables -A FORWARD -p tcp -m conntrack --ctstate NEW,ESTABLISHED --dport 80 -d 
   </li>                                  
 </ol>
 ---
+Test Lan -> WAN
 
 ![wget_lan_to_heig_ok](https://user-images.githubusercontent.com/33039189/55188554-f8f38380-519b-11e9-8e68-2c4358b4153c.png)
+
+Test Lan -> DMZ, port 80 uniquement
+![2019-03-30 14_03_33-root@Client_in_LAN_ _](https://user-images.githubusercontent.com/33039189/55276526-d5901c00-52f4-11e9-912e-a9ec0fb21562.png)
+
 
 ---
 
