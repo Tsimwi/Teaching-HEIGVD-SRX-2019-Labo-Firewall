@@ -382,6 +382,7 @@ ping 8.8.8.8
 Faire une capture du ping.
 
 ---
+
 ![capture_du_ping_lan_wan_OK](https://user-images.githubusercontent.com/33039189/55188542-f1cc7580-519b-11e9-933a-42f3bab86f04.png)
 
 ---
@@ -446,6 +447,7 @@ iptables -A FORWARD -p tcp -m conntrack --ctstate NEW,ESTABLISHED --sport 53 -d 
   <li>Tester en réitérant la commande ping sur le serveur de test (Google ou autre) : 
   </li>                                  
 </ol>
+
 ---
 
 ![capture_du_ping_dns_lan_to_google_ok](https://user-images.githubusercontent.com/33039189/55188537-eed18500-519b-11e9-87fb-de1fbb375338.png)
@@ -456,7 +458,9 @@ iptables -A FORWARD -p tcp -m conntrack --ctstate NEW,ESTABLISHED --sport 53 -d 
   <li>Remarques (sur le message du premier ping)? 
   </li>                                  
 </ol>
+
 ---
+
 **Réponse**
 
 **On remarque que lorsqu'on souhaitait résoudre le nom www.google.com, on obtienait l'erreur _Temporary failure in name resolution_. Cela était dû au fait que notre client LAN faisait une demande de résolution du nom de domaine depuis son port 53, mais que cela n'aboutissait jamais vu que le Firewall "drop" tout par défaut. C'est seulement après avoir autorisé le traffic udp depuis et vers le port 53 du client LAN que le problème a été résolu.**
